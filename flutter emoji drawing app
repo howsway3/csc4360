@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
-
+# I did this assignment by myself as i was not in class
 void main() {
   runApp(const InteractiveEmojiApp());
 }
