@@ -1,0 +1,231 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  bool _isDarkMode = false;
+
+  void _toggleTheme() {
+    setState(() {
+      _isDarkMode = !_isDarkMode;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Counter & Image Toggle App',
+      theme: _isDarkMode ? ThemeData.dark() : ThemeData.light(),
+      home: CounterImageApp(onThemeToggle: _toggleTheme),
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+class CounterImageApp extends StatefulWidget {
+  final VoidCallback onThemeToggle;
+
+  const CounterImageApp({Key? key, required this.onThemeToggle}) : super(key: key);
+
+  @override
+  _CounterImageAppState createState() => _CounterImageAppState();
+}
+
+class _CounterImageAppState extends State<CounterImageApp>
+    with TickerProviderStateMixin {
+  // Counter variables
+  int _counter = 0;
+  
+  // Image toggle variables
+  bool _isFirstImage = true;
+  
+  // Animation controller for image transitions
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeAnimation();
+  }
+
+  void _initializeAnimation() {
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+    
+    _fadeAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
+    
+    _animationController.forward();
+  }
+
+  // Increment counter function
+  void _incrementCounter() {
+    setState(() {
+      _counter++;
+    });
+  }
+
+  // Toggle image function with animation
+  void _toggleImage() {
+    _animationController.reset();
+    setState(() {
+      _isFirstImage = !_isFirstImage;
+    });
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Counter & Image Toggle'),
+        elevation: 4,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.brightness_6),
+            onPressed: widget.onThemeToggle,
+            tooltip: 'Toggle Theme',
+          ),
+        ],
+      ),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Counter Section
+              Card(
+                elevation: 8,
+                margin: const EdgeInsets.symmetric(vertical: 10),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      const Text(
+                        'Counter Value:',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        '$_counter',
+                        style: const TextStyle(
+                          fontSize: 48,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      ElevatedButton.icon(
+                        onPressed: _incrementCounter,
+                        icon: const Icon(Icons.add),
+                        label: const Text('Increment'),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                          textStyle: const TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              
+              const SizedBox(height: 30),
+              
+              // Image Toggle Section
+              Card(
+                elevation: 8,
+                margin: const EdgeInsets.symmetric(vertical: 10),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      const Text(
+                        'Image Toggle:',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 20),
+                      
+                      // Animated Image Container
+                      FadeTransition(
+                        opacity: _fadeAnimation,
+                        child: Container(
+                          width: 200,
+                          height: 200,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.5),
+                                spreadRadius: 2,
+                                blurRadius: 7,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(15),
+                            child: _isFirstImage
+                                ? Container(
+                                    color: Colors.lightBlue,
+                                    child: const Center(
+                                      child: Icon(
+                                        Icons.wb_sunny,
+                                        size: 80,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  )
+                                : Container(
+                                    color: Colors.deepPurple,
+                                    child: const Center(
+                                      child: Icon(
+                                        Icons.nights_stay,
+                                        size: 80,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 20),
+                      ElevatedButton.icon(
+                        onPressed: _toggleImage,
+                        icon: const Icon(Icons.swap_horiz),
+                        label: const Text('Toggle Image'),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                          textStyle: const TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
