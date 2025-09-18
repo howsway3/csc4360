@@ -1,0 +1,430 @@
+// Digital Pet App with State Management
+// Student Name: [Your Name Here]
+// Collaborator: [If any]
+// MAD - Introduction to State Management
+// Due: 09/18/25
+
+import 'package:flutter/material.dart';
+import 'dart:async';
+
+void main() {
+  runApp(MaterialApp(
+    home: DigitalPetApp(),
+  ));
+}
+
+class DigitalPetApp extends StatefulWidget {
+  @override
+  _DigitalPetAppState createState() => _DigitalPetAppState();
+}
+
+class _DigitalPetAppState extends State<DigitalPetApp> {
+  String petName = "Your Pet";
+  int happinessLevel = 50;
+  int hungerLevel = 50;
+  int energyLevel = 50; // Part 2 Feature: Energy Level
+  Timer? _hungerTimer;
+  Timer? _winConditionTimer;
+  bool gameOver = false;
+  bool showWinMessage = false;
+  bool nameSet = false;
+  TextEditingController _nameController = TextEditingController();
+  
+  // Activity Selection - Part 2 Feature
+  String selectedActivity = 'Play';
+  List<String> activities = ['Play', 'Exercise', 'Sleep', 'Train'];
+
+  @override
+  void initState() {
+    super.initState();
+    _startHungerTimer();
+    _startWinConditionTimer();
+  }
+
+  @override
+  void dispose() {
+    _hungerTimer?.cancel();
+    _winConditionTimer?.cancel();
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  void _startHungerTimer() {
+    _hungerTimer = Timer.periodic(Duration(seconds: 30), (timer) {
+      if (!gameOver) {
+        setState(() {
+          hungerLevel += 10;
+          if (hungerLevel > 100) {
+            hungerLevel = 100;
+            happinessLevel -= 20;
+          }
+          _checkGameOver();
+        });
+      }
+    });
+  }
+
+  void _startWinConditionTimer() {
+    _winConditionTimer = Timer.periodic(Duration(seconds: 10), (timer) {
+      if (happinessLevel > 80 && !gameOver) {
+        // Check if happiness has been above 80 for 3 minutes (simplified to 30 seconds for demo)
+        Future.delayed(Duration(seconds: 30), () {
+          if (happinessLevel > 80 && !gameOver) {
+            setState(() {
+              showWinMessage = true;
+            });
+          }
+        });
+      }
+    });
+  }
+
+  void _playWithPet() {
+    if (!gameOver && nameSet) {
+      setState(() {
+        happinessLevel += 10;
+        energyLevel -= 5;
+        _updateHunger();
+        _checkLimits();
+      });
+    }
+  }
+
+  void _feedPet() {
+    if (!gameOver && nameSet) {
+      setState(() {
+        hungerLevel -= 10;
+        _updateHappiness();
+        _checkLimits();
+      });
+    }
+  }
+
+  void _performActivity() {
+    if (!gameOver && nameSet) {
+      setState(() {
+        switch (selectedActivity) {
+          case 'Play':
+            happinessLevel += 15;
+            energyLevel -= 10;
+            break;
+          case 'Exercise':
+            happinessLevel += 10;
+            energyLevel += 5;
+            hungerLevel += 15;
+            break;
+          case 'Sleep':
+            energyLevel += 20;
+            happinessLevel += 5;
+            break;
+          case 'Train':
+            happinessLevel += 8;
+            energyLevel -= 15;
+            hungerLevel += 5;
+            break;
+        }
+        _checkLimits();
+      });
+    }
+  }
+
+  void _updateHappiness() {
+    if (hungerLevel < 30) {
+      happinessLevel -= 20;
+    } else {
+      happinessLevel += 10;
+    }
+  }
+
+  void _updateHunger() {
+    hungerLevel += 5;
+    if (hungerLevel > 100) {
+      hungerLevel = 100;
+      happinessLevel -= 20;
+    }
+  }
+
+  void _checkLimits() {
+    if (happinessLevel > 100) happinessLevel = 100;
+    if (happinessLevel < 0) happinessLevel = 0;
+    if (hungerLevel < 0) hungerLevel = 0;
+    if (energyLevel > 100) energyLevel = 100;
+    if (energyLevel < 0) energyLevel = 0;
+    _checkGameOver();
+  }
+
+  void _checkGameOver() {
+    if (hungerLevel >= 100 && happinessLevel <= 10) {
+      gameOver = true;
+    }
+  }
+
+  void _setPetName() {
+    if (_nameController.text.isNotEmpty) {
+      setState(() {
+        petName = _nameController.text;
+        nameSet = true;
+      });
+    }
+  }
+
+  void _resetGame() {
+    setState(() {
+      happinessLevel = 50;
+      hungerLevel = 50;
+      energyLevel = 50;
+      gameOver = false;
+      showWinMessage = false;
+      nameSet = false;
+      petName = "Your Pet";
+      _nameController.clear();
+    });
+  }
+
+  Color _getPetColor() {
+    if (happinessLevel > 70) {
+      return Colors.green; // Happy
+    } else if (happinessLevel >= 30) {
+      return Colors.yellow; // Neutral
+    } else {
+      return Colors.red; // Unhappy
+    }
+  }
+
+  String _getPetMood() {
+    if (happinessLevel > 70) {
+      return "Happy 😊";
+    } else if (happinessLevel >= 30) {
+      return "Neutral 😐";
+    } else {
+      return "Unhappy 😢";
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (showWinMessage) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Digital Pet'),
+          backgroundColor: Colors.green,
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                '🎉 YOU WIN! 🎉',
+                style: TextStyle(fontSize: 32.0, fontWeight: FontWeight.bold, color: Colors.green),
+              ),
+              SizedBox(height: 16.0),
+              Text(
+                'Your pet stayed happy for long enough!',
+                style: TextStyle(fontSize: 18.0),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 32.0),
+              ElevatedButton(
+                onPressed: _resetGame,
+                child: Text('Play Again'),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (gameOver) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Digital Pet'),
+          backgroundColor: Colors.red,
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                '💀 GAME OVER 💀',
+                style: TextStyle(fontSize: 32.0, fontWeight: FontWeight.bold, color: Colors.red),
+              ),
+              SizedBox(height: 16.0),
+              Text(
+                'Your pet became too hungry and unhappy!',
+                style: TextStyle(fontSize: 18.0),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 32.0),
+              ElevatedButton(
+                onPressed: _resetGame,
+                child: Text('Try Again'),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (!nameSet) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Digital Pet'),
+        ),
+        body: Center(
+          child: Padding(
+            padding: EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Welcome to Digital Pet!',
+                  style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 32.0),
+                Text(
+                  'What would you like to name your pet?',
+                  style: TextStyle(fontSize: 18.0),
+                ),
+                SizedBox(height: 16.0),
+                TextField(
+                  controller: _nameController,
+                  decoration: InputDecoration(
+                    hintText: 'Enter pet name',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                SizedBox(height: 16.0),
+                ElevatedButton(
+                  onPressed: _setPetName,
+                  child: Text('Set Name'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Digital Pet'),
+      ),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              // Pet visual representation
+              Container(
+                width: 150,
+                height: 150,
+                decoration: BoxDecoration(
+                  color: _getPetColor(),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    '🐕', // Use any pet emoji or replace with Image.asset for custom pet image
+                    style: TextStyle(fontSize: 60),
+                  ),
+                ),
+              ),
+              SizedBox(height: 16.0),
+              Text(
+                'Name: $petName',
+                style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 16.0),
+              Text(
+                'Mood: ${_getPetMood()}',
+                style: TextStyle(fontSize: 18.0),
+              ),
+              SizedBox(height: 16.0),
+              Text(
+                'Happiness Level: $happinessLevel',
+                style: TextStyle(fontSize: 20.0),
+              ),
+              SizedBox(height: 16.0),
+              Text(
+                'Hunger Level: $hungerLevel',
+                style: TextStyle(fontSize: 20.0),
+              ),
+              SizedBox(height: 16.0),
+              Text(
+                'Energy Level: $energyLevel',
+                style: TextStyle(fontSize: 20.0),
+              ),
+              SizedBox(height: 16.0),
+              // Energy Bar Widget (Part 2 Feature)
+              Container(
+                width: 300,
+                child: Column(
+                  children: [
+                    Text('Energy Bar:', style: TextStyle(fontSize: 16.0)),
+                    SizedBox(height: 8.0),
+                    LinearProgressIndicator(
+                      value: energyLevel / 100,
+                      backgroundColor: Colors.grey[300],
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        energyLevel > 50 ? Colors.green : Colors.orange,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 32.0),
+              // Activity Selection (Part 2 Feature)
+              Text(
+                'Select Activity:',
+                style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 8.0),
+              DropdownButton<String>(
+                value: selectedActivity,
+                items: activities.map((String activity) {
+                  return DropdownMenuItem<String>(
+                    value: activity,
+                    child: Text(activity),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    selectedActivity = newValue!;
+                  });
+                },
+              ),
+              SizedBox(height: 16.0),
+              ElevatedButton(
+                onPressed: _performActivity,
+                child: Text('Do $selectedActivity'),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.purple),
+              ),
+              SizedBox(height: 16.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: _playWithPet,
+                    child: Text('Play with Pet'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _feedPet,
+                    child: Text('Feed Pet'),
+                  ),
+                ],
+              ),
+              SizedBox(height: 16.0),
+              ElevatedButton(
+                onPressed: _resetGame,
+                child: Text('Reset Game'),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
