@@ -1,0 +1,338 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  bool _isDarkMode = false;
+
+  void toggleTheme() {
+    setState(() {
+      _isDarkMode = !_isDarkMode;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: _isDarkMode ? ThemeData.dark() : ThemeData.light(),
+      home: FadingTextAnimation(
+        isDarkMode: _isDarkMode,
+        onThemeToggle: toggleTheme,
+      ),
+    );
+  }
+}
+
+class FadingTextAnimation extends StatefulWidget {
+  final bool isDarkMode;
+  final VoidCallback onThemeToggle;
+
+  const FadingTextAnimation({
+    super.key,
+    required this.isDarkMode,
+    required this.onThemeToggle,
+  });
+
+  @override
+  State<FadingTextAnimation> createState() => _FadingTextAnimationState();
+}
+
+class _FadingTextAnimationState extends State<FadingTextAnimation> {
+  bool _isVisible = true;
+  Color _textColor = Colors.blue;
+  bool _showFrame = false;
+
+  void toggleVisibility() {
+    setState(() {
+      _isVisible = !_isVisible;
+    });
+  }
+
+  void _openColorPicker() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Choose Text Color'),
+          content: SingleChildScrollView(
+            child: Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: [
+                Colors.blue,
+                Colors.red,
+                Colors.green,
+                Colors.orange,
+                Colors.purple,
+                Colors.pink,
+                Colors.teal,
+                Colors.amber,
+                Colors.cyan,
+                Colors.indigo,
+              ].map((color) {
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _textColor = color;
+                    });
+                    Navigator.of(context).pop();
+                  },
+                  child: Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: color,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: _textColor == color
+                            ? Colors.white
+                            : Colors.transparent,
+                        width: 3,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Fading Text Animation'),
+        actions: [
+          IconButton(
+            icon: Icon(
+              widget.isDarkMode ? Icons.wb_sunny : Icons.nightlight_round,
+            ),
+            onPressed: widget.onThemeToggle,
+            tooltip: 'Toggle Theme',
+          ),
+          IconButton(
+            icon: const Icon(Icons.color_lens),
+            onPressed: _openColorPicker,
+            tooltip: 'Change Color',
+          ),
+        ],
+      ),
+      body: GestureDetector(
+        onHorizontalDragEnd: (details) {
+          if (details.primaryVelocity! < 0) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SecondFadingScreen(
+                  isDarkMode: widget.isDarkMode,
+                ),
+              ),
+            );
+          }
+        },
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              GestureDetector(
+                onTap: toggleVisibility,
+                child: AnimatedOpacity(
+                  opacity: _isVisible ? 1.0 : 0.0,
+                  duration: const Duration(seconds: 1),
+                  curve: Curves.easeInOut,
+                  child: Text(
+                    'Hello, Flutter!',
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: _textColor,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 40),
+              Container(
+                decoration: _showFrame
+                    ? BoxDecoration(
+                        border: Border.all(
+                          color: _textColor,
+                          width: 4,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                      )
+                    : null,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: AnimatedOpacity(
+                    opacity: _isVisible ? 1.0 : 0.3,
+                    duration: const Duration(milliseconds: 800),
+                    curve: Curves.easeInOut,
+                    child: Image.network(
+                      'https://picsum.photos/200/200',
+                      width: 200,
+                      height: 200,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          width: 200,
+                          height: 200,
+                          color: Colors.grey[300],
+                          child: const Icon(Icons.image, size: 50),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              SwitchListTile(
+                title: const Text('Show Frame'),
+                value: _showFrame,
+                onChanged: (bool value) {
+                  setState(() {
+                    _showFrame = value;
+                  });
+                },
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Swipe left for second animation →',
+                style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
+              ),
+            ],
+          ),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: toggleVisibility,
+        tooltip: 'Toggle Animation',
+        child: const Icon(Icons.play_arrow),
+      ),
+    );
+  }
+}
+
+class SecondFadingScreen extends StatefulWidget {
+  final bool isDarkMode;
+
+  const SecondFadingScreen({super.key, required this.isDarkMode});
+
+  @override
+  State<SecondFadingScreen> createState() => _SecondFadingScreenState();
+}
+
+class _SecondFadingScreenState extends State<SecondFadingScreen>
+    with SingleTickerProviderStateMixin {
+  bool _isVisible = true;
+  late AnimationController _rotationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _rotationController = AnimationController(
+      duration: const Duration(seconds: 3),
+      vsync: this,
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _rotationController.dispose();
+    super.dispose();
+  }
+
+  void toggleVisibility() {
+    setState(() {
+      _isVisible = !_isVisible;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Second Fading Animation'),
+      ),
+      body: GestureDetector(
+        onHorizontalDragEnd: (details) {
+          if (details.primaryVelocity! > 0) {
+            Navigator.pop(context);
+          }
+        },
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AnimatedOpacity(
+                opacity: _isVisible ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 3000),
+                curve: Curves.bounceInOut,
+                child: const Text(
+                  'Slower Fade Animation',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 40),
+              RotationTransition(
+                turns: _rotationController,
+                child: AnimatedOpacity(
+                  opacity: _isVisible ? 1.0 : 0.2,
+                  duration: const Duration(seconds: 2),
+                  curve: Curves.easeInOutCubic,
+                  child: const Icon(
+                    Icons.star,
+                    size: 100,
+                    color: Colors.amber,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 40),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 2000),
+                curve: Curves.elasticOut,
+                width: _isVisible ? 200 : 100,
+                height: _isVisible ? 200 : 100,
+                decoration: BoxDecoration(
+                  color: _isVisible ? Colors.purple : Colors.orange,
+                  borderRadius: BorderRadius.circular(_isVisible ? 20 : 100),
+                ),
+              ),
+              const SizedBox(height: 40),
+              const Text(
+                '← Swipe right to go back',
+                style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
+              ),
+            ],
+          ),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: toggleVisibility,
+        label: const Text('Animate'),
+        icon: const Icon(Icons.animation),
+      ),
+    );
+  }
+}
