@@ -1,1 +1,175 @@
+class Recipe {
+  final String name;
+  final String imageUrl;
+  final List<String> ingredients;
+  final List<String> instructions;
+  final String cookingTime;
+  final String difficulty;
+  bool isFavorite;
 
+  Recipe({
+    required this.name,
+    required this.imageUrl,
+    required this.ingredients,
+    required this.instructions,
+    required this.cookingTime,
+    required this.difficulty,
+    this.isFavorite = false,
+  });
+}
+
+// Sample recipe data
+List<Recipe> sampleRecipes = [
+  Recipe(
+    name: 'Spaghetti Carbonara',
+    imageUrl: 'https://images.unsplash.com/photo-1612874742237-6526221588e3?w=400',
+    cookingTime: '30 mins',
+    difficulty: 'Medium',
+    ingredients: [
+      '400g spaghetti',
+      '200g pancetta or bacon',
+      '4 large eggs',
+      '100g Parmesan cheese',
+      'Black pepper',
+      'Salt',
+    ],
+    instructions: [
+      'Bring a large pot of salted water to boil and cook spaghetti according to package directions.',
+      'While pasta cooks, dice pancetta and fry in a large skillet until crispy.',
+      'Beat eggs in a bowl and mix in grated Parmesan cheese.',
+      'Drain pasta, reserving 1 cup of pasta water.',
+      'Add hot pasta to the skillet with pancetta, remove from heat.',
+      'Quickly stir in egg mixture, adding pasta water to create a creamy sauce.',
+      'Season with black pepper and serve immediately.',
+    ],
+  ),
+  Recipe(
+    name: 'Chicken Tikka Masala',
+    imageUrl: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400',
+    cookingTime: '45 mins',
+    difficulty: 'Medium',
+    ingredients: [
+      '500g chicken breast',
+      '1 cup yogurt',
+      '3 tbsp tikka masala paste',
+      '1 can tomato sauce',
+      '1 cup heavy cream',
+      '2 onions, diced',
+      'Garlic and ginger',
+      'Fresh cilantro',
+    ],
+    instructions: [
+      'Marinate chicken pieces in yogurt and 2 tbsp tikka masala paste for 30 minutes.',
+      'Grill or pan-fry marinated chicken until cooked through.',
+      'In a large pan, sauté onions, garlic, and ginger until soft.',
+      'Add remaining tikka masala paste and cook for 2 minutes.',
+      'Pour in tomato sauce and simmer for 10 minutes.',
+      'Add cream and cooked chicken, simmer for another 10 minutes.',
+      'Garnish with fresh cilantro and serve with rice or naan.',
+    ],
+  ),
+  Recipe(
+    name: 'Classic Pancakes',
+    imageUrl: 'https://images.unsplash.com/photo-1528207776546-365bb710ee93?w=400',
+    cookingTime: '20 mins',
+    difficulty: 'Easy',
+    ingredients: [
+      '2 cups all-purpose flour',
+      '2 tbsp sugar',
+      '2 tsp baking powder',
+      '1 tsp salt',
+      '2 eggs',
+      '1.5 cups milk',
+      '4 tbsp melted butter',
+      'Maple syrup for serving',
+    ],
+    instructions: [
+      'Mix flour, sugar, baking powder, and salt in a large bowl.',
+      'In another bowl, whisk eggs, milk, and melted butter.',
+      'Pour wet ingredients into dry ingredients and mix until just combined.',
+      'Heat a griddle or pan over medium heat and lightly grease.',
+      'Pour 1/4 cup batter for each pancake.',
+      'Cook until bubbles form on surface, then flip and cook until golden.',
+      'Serve warm with maple syrup and butter.',
+    ],
+  ),
+  Recipe(
+    name: 'Caesar Salad',
+    imageUrl: 'https://images.unsplash.com/photo-1546793665-c74683f339c1?w=400',
+    cookingTime: '15 mins',
+    difficulty: 'Easy',
+    ingredients: [
+      '1 large romaine lettuce',
+      '1 cup croutons',
+      '1/2 cup Parmesan cheese',
+      '2 cloves garlic',
+      '2 anchovy fillets',
+      '1 egg yolk',
+      '2 tbsp lemon juice',
+      '1/2 cup olive oil',
+      'Worcestershire sauce',
+    ],
+    instructions: [
+      'Wash and chop romaine lettuce into bite-sized pieces.',
+      'For dressing: blend garlic, anchovies, egg yolk, and lemon juice.',
+      'Slowly drizzle in olive oil while blending until emulsified.',
+      'Add Worcestershire sauce and season to taste.',
+      'Toss lettuce with dressing until well coated.',
+      'Top with croutons and shaved Parmesan cheese.',
+      'Serve immediately while fresh and crispy.',
+    ],
+  ),
+  Recipe(
+    name: 'Chocolate Chip Cookies',
+    imageUrl: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400',
+    cookingTime: '25 mins',
+    difficulty: 'Easy',
+    ingredients: [
+      '2.25 cups all-purpose flour',
+      '1 tsp baking soda',
+      '1 cup butter, softened',
+      '3/4 cup sugar',
+      '3/4 cup brown sugar',
+      '2 large eggs',
+      '2 tsp vanilla extract',
+      '2 cups chocolate chips',
+    ],
+    instructions: [
+      'Preheat oven to 375°F (190°C).',
+      'Mix flour and baking soda in a bowl.',
+      'In another bowl, beat butter and both sugars until creamy.',
+      'Add eggs and vanilla to butter mixture and beat well.',
+      'Gradually stir in flour mixture.',
+      'Fold in chocolate chips.',
+      'Drop rounded tablespoons of dough onto baking sheets.',
+      'Bake for 9-11 minutes until golden brown.',
+      'Cool on baking sheet for 2 minutes before transferring.',
+    ],
+  ),
+  Recipe(
+    name: 'Margherita Pizza',
+    imageUrl: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400',
+    cookingTime: '40 mins',
+    difficulty: 'Medium',
+    ingredients: [
+      'Pizza dough (store-bought or homemade)',
+      '1 cup tomato sauce',
+      '300g fresh mozzarella',
+      'Fresh basil leaves',
+      '2 tbsp olive oil',
+      '2 cloves garlic',
+      'Salt and pepper',
+    ],
+    instructions: [
+      'Preheat oven to 475°F (245°C) with pizza stone if available.',
+      'Roll out pizza dough on a floured surface.',
+      'Mix tomato sauce with minced garlic, salt, and pepper.',
+      'Spread sauce evenly over dough, leaving a border for crust.',
+      'Tear mozzarella and distribute over sauce.',
+      'Drizzle with olive oil.',
+      'Bake for 12-15 minutes until crust is golden and cheese bubbles.',
+      'Remove from oven and top with fresh basil leaves.',
+      'Slice and serve hot.',
+    ],
+  ),
+];
