@@ -161,9 +161,7 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   void _playBackgroundMusic() async {
-    // In production, add your Halloween background music file
-    // await _bgMusicPlayer.play(AssetSource('sounds/bg_music.mp3'));
-    // await _bgMusicPlayer.setReleaseMode(ReleaseMode.loop);
+ 
   }
 
   @override
@@ -548,12 +546,10 @@ class _GameScreenState extends State<GameScreen>
 
     if (item.isCorrect) {
       setState(() => _gameWon = true);
-      // Play success sound
-      // await _audioPlayer.play(AssetSource('sounds/success.mp3'));
+    
       _showWinDialog();
     } else if (item.isTrap) {
-      // Play jump scare sound
-      // await _audioPlayer.play(AssetSource('sounds/jumpscare.mp3'));
+     
       _showTrapDialog();
     }
   }
@@ -645,7 +641,7 @@ class _GameScreenState extends State<GameScreen>
                       duration: Duration(milliseconds: 500 + _random.nextInt(500)),
                       curve: Curves.easeInOut,
                       onEnd: () {
-                        // This creates a pulsing effect
+                        
                       },
                       builder: (context, scale, child) {
                         return Transform.scale(
