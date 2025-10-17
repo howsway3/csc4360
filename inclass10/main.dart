@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'database_helper.dart';
 
-// Here we are using a global variable. You can use something like
-// get_it in a production app.
+
 final dbHelper = DatabaseHelper();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Initialize the database
+  
   await dbHelper.init();
   runApp(const MyApp());
 }
@@ -30,7 +29,7 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatelessWidget {
   const MyHomePage({super.key});
 
-  // Homepage layout
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -158,7 +157,7 @@ class MyHomePage extends StatelessWidget {
     );
   }
 
-  // Button onPressed methods
+  
 
   void _insert() async {
     // Row to insert
@@ -190,7 +189,6 @@ class MyHomePage extends StatelessWidget {
   }
 
   void _delete() async {
-    // Assuming that the number of rows is the id for the last row.
     final id = await dbHelper.queryRowCount();
     final rowsDeleted = await dbHelper.delete(id);
     debugPrint('deleted $rowsDeleted row(s): row $id');
